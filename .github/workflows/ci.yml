@@ -19,3 +19,17 @@ jobs:
 
       - name: Build
         run: xcodebuild -project iina.xcodeproj -scheme iina CODE_SIGNING_ALLOWED=NO
+      - name: Organize files
+        id: organize
+        run: |
+          cd /Users/runner/Library/Developer/Xcode/DerivedData/iina-csbkugdtxazzqogjnydbothqrvib/Build/Products/Debug
+          zip -q -r ./Debug
+          echo "FIRMWARE=$PWD" >> $GITHUB_ENV
+          echo "::set-output name=status::success"
+
+      - name: Upload firmware directory
+        uses: actions/upload-artifact@main
+        if: steps.organize.outputs.status == 'success' && !cancelled()
+        with:
+          name: iina_firmware
+          path: ${{ env.FIRMWARE }}
